@@ -437,7 +437,7 @@ ifneq (0,$(LUNATIC))
 endif
 
 duke3d_game := eduke32
-duke3d_editor := mapster32
+#duke3d_editor := mapster32
 
 ifneq (,$(APPBASENAME))
     duke3d_game := $(APPBASENAME)

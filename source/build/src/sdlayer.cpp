@@ -2098,6 +2098,13 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
 
         case SDL_JOYBUTTONDOWN:
         case SDL_JOYBUTTONUP:
+        	// rg351p hard exit
+        	if (ev->jbutton.button == 7 && quitevent == 0) {
+            	quitevent = 1;
+            	uninitsystem();
+            	return -1;
+        	}
+
             if (appactive && ev->jbutton.button < joynumbuttons)
             {
                 if (ev->jbutton.state == SDL_PRESSED)

@@ -68,6 +68,8 @@ int32_t inputchecked = 0;
 
 char quitevent=0, appactive=1, novideo=0;
 
+int inmenu = 0;
+
 // video
 static SDL_Surface *sdl_surface/*=NULL*/;
 #if !defined SDL_DISABLE_8BIT_BUFFER
@@ -1965,97 +1967,9 @@ void handleevents_updatemousestate(uint8_t state)
 //   returns !0 if there was an important event worth checking (like quitting)
 //
 
-int32_t handleevents_sdlcommon(SDL_Event *ev)
-{
-    switch (ev->type)
-    {
-#if !defined EDUKE32_IOS
-        case SDL_MOUSEMOTION:
-#ifndef GEKKO
-            mouseabs.x = ev->motion.x;
-            mouseabs.y = ev->motion.y;
-#endif
-            // SDL <VER> doesn't handle relative mouse movement correctly yet as the cursor still clips to the
-            // screen edges
-            // so, we call SDL_WarpMouse() to center the cursor and ignore the resulting motion event that occurs
-            //  <VER> is 1.3 for PK, 1.2 for tueidj
-            if (appactive && mousegrab)
-            {
-                if (ev->motion.x != xdim >> 1 || ev->motion.y != ydim >> 1)
-                {
-                    mousex += ev->motion.xrel;
-                    mousey += ev->motion.yrel;
-# if SDL_MAJOR_VERSION==1
-                    SDL_WarpMouse(xdim>>1, ydim>>1);
-# else
-                    SDL_WarpMouseInWindow(sdl_window, xdim>>1, ydim>>1);
-# endif
-                }
-            }
-            break;
-
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-        {
-            int32_t j;
-
-            // some of these get reordered to match winlayer
-            switch (ev->button.button)
-            {
-                default: j = -1; break;
-                case SDL_BUTTON_LEFT: j = 0; handleevents_updatemousestate(ev->button.state); break;
-                case SDL_BUTTON_RIGHT: j = 1; break;
-                case SDL_BUTTON_MIDDLE: j = 2; break;
-
-#if SDL_MAJOR_VERSION == 1
-                case SDL_BUTTON_WHEELUP:    // 4
-                case SDL_BUTTON_WHEELDOWN:  // 5
-                    j = ev->button.button;
-                    break;
-#endif
-                /* Thumb buttons. */
-#if SDL_MAJOR_VERSION==1 || !defined _WIN32
-                // NOTE: SDL1 does have SDL_BUTTON_X1, but that's not what is
-                // generated. Neither with SDL2 on Linux. (Other OSs: not tested.)
-                case 8: j = 3; break;
-                case 9: j = 6; break;
-#else
-                // On SDL2/Windows, everything is as it should be.
-                case SDL_BUTTON_X1: j = 3; break;
-                case SDL_BUTTON_X2: j = 6; break;
-#endif
-            }
-
-            if (j < 0)
-                break;
-
-            if (ev->button.state == SDL_PRESSED)
-                mouseb |= (1 << j);
-            else
-#if SDL_MAJOR_VERSION==1
-                if (j != SDL_BUTTON_WHEELUP && j != SDL_BUTTON_WHEELDOWN)
-#endif
-                mouseb &= ~(1 << j);
-
-            if (mousepresscallback)
-                mousepresscallback(j+1, ev->button.state == SDL_PRESSED);
-            break;
-        }
-#else
-# if SDL_MAJOR_VERSION != 1
-        case SDL_FINGERUP:
-            mousepressstate = Mouse_Released;
-            break;
-        case SDL_FINGERDOWN:
-            mousepressstate = Mouse_Pressed;
-        case SDL_FINGERMOTION:
-            mouseabs.x = Blrintf(ev->tfinger.x * xdim);
-            mouseabs.y = Blrintf(ev->tfinger.y * ydim);
-            break;
-# endif
-#endif
-
-        case SDL_JOYAXISMOTION:
+int32_t handleevents_sdlcommon(SDL_Event *ev) {
+    switch (ev->type) {
+        case SDL_JOYAXISMOTION: {
             if (appactive && ev->jaxis.axis < joynumaxes)
             {
                 joyaxis[ev->jaxis.axis] = ev->jaxis.value * 10000 / 32767;
@@ -2070,9 +1984,9 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                     joyaxis[ev->jaxis.axis] = joyaxis[ev->jaxis.axis] * 10000 / joysatur[ev->jaxis.axis];
             }
             break;
+        }
 
-        case SDL_JOYHATMOTION:
-        {
+        case SDL_JOYHATMOTION: {
             int32_t hatvals[16] = {
                 -1,     // centre
                 0,      // up 1
@@ -2093,35 +2007,67 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             };
             if (appactive && ev->jhat.hat < joynumhats)
                 joyhat[ev->jhat.hat] = hatvals[ev->jhat.value & 15];
+
             break;
         }
 
         case SDL_JOYBUTTONDOWN:
-        case SDL_JOYBUTTONUP:
-        	// rg351p hard exit
-        	if (ev->jbutton.button == 7 && quitevent == 0) {
-            	quitevent = 1;
-            	uninitsystem();
-            	return -1;
-        	}
-
+        case SDL_JOYBUTTONUP: {
             if (appactive && ev->jbutton.button < joynumbuttons)
             {
-                if (ev->jbutton.state == SDL_PRESSED)
-                    joyb |= 1 << ev->jbutton.button;
-                else
-                    joyb &= ~(1 << ev->jbutton.button);
-
-#ifdef GEKKO
-                if (ev->jbutton.button == 0) // WII_A
-                    handleevents_updatemousestate(ev->jbutton.state);
-#endif
+            	if (ev->jbutton.state == SDL_PRESSED)
+                	joyb |= 1 << ev->jbutton.button;
+            	else
+                	joyb &= ~(1 << ev->jbutton.button);
             }
-            break;
 
-        case SDL_QUIT:
+            // rg351p - select
+        	if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 7) {
+	            quitevent = 1;
+
+	            if (inmenu == 0) {
+	            	inmenu = 1;
+	            }
+	            else {
+	            	inmenu = 0;
+	            }
+	            //uninitsystem();
+	            return -1;
+        	}
+
+        	if (inmenu == 1) {  	
+	        	// A
+	        	if (ev->type == SDL_JOYBUTTONDOWN && ev->jbutton.button == 0) {
+	                SetKey(0x1c, 1);
+	                if (keypresscallback)
+	                    keypresscallback(0x1c, 1);
+	        	}
+	        	else if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 0) {
+	                SetKey(0x1c, 0);
+	                if (keypresscallback)
+	                    keypresscallback(0x1c, 0);
+	        	}
+
+	        	// B
+	        	if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 1) {
+	                SetKey(0x1, 1);
+	                if (keypresscallback)
+	                    keypresscallback(0x1, 1);
+	        	}
+	        	else if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 1) {
+	                SetKey(0x1, 0);
+	                if (keypresscallback)
+	                    keypresscallback(0x1, 0);
+	        	}
+	        }
+
+            break;
+        } 
+
+        case SDL_QUIT: {
             quitevent = 1;
             return -1;
+        }
     }
 
     return 0;

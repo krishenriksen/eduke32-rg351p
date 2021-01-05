@@ -41,6 +41,8 @@
 # define SDL_DISABLE_8BIT_BUFFER
 #endif
 
+#include "scancodes.h"
+
 #if SDL_MAJOR_VERSION != 1
 static SDL_version linked;
 #endif
@@ -2049,7 +2051,7 @@ int32_t handleevents_sdlcommon(SDL_Event *ev) {
 	        	}
 
 	        	// B
-	        	if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 1) {
+	        	if (ev->type == SDL_JOYBUTTONDOWN && ev->jbutton.button == 1) {
 	                SetKey(0x1, 1);
 	                if (keypresscallback)
 	                    keypresscallback(0x1, 1);
@@ -2059,6 +2061,18 @@ int32_t handleevents_sdlcommon(SDL_Event *ev) {
 	                if (keypresscallback)
 	                    keypresscallback(0x1, 0);
 	        	}
+
+	        	// start
+	        	if (ev->type == SDL_JOYBUTTONDOWN && ev->jbutton.button == 6) {
+	                SetKey(sc_kpad_Enter, 1);
+	                if (keypresscallback)
+	                    keypresscallback(sc_kpad_Enter, 1);
+	        	}
+	        	else if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 6) {
+	                SetKey(sc_kpad_Enter, 0);
+	                if (keypresscallback)
+	                    keypresscallback(sc_kpad_Enter, 0);
+	        	}	        	
 	        }
 
             break;

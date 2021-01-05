@@ -2040,39 +2040,39 @@ int32_t handleevents_sdlcommon(SDL_Event *ev) {
         	if (inmenu == 1) {  	
 	        	// A
 	        	if (ev->type == SDL_JOYBUTTONDOWN && ev->jbutton.button == 0) {
-	                SetKey(0x1c, 1);
+	                SetKey(sc_Return, 1);
 	                if (keypresscallback)
-	                    keypresscallback(0x1c, 1);
+	                    keypresscallback(sc_Return, 1);
 	        	}
 	        	else if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 0) {
-	                SetKey(0x1c, 0);
+	                SetKey(sc_Return, 0);
 	                if (keypresscallback)
-	                    keypresscallback(0x1c, 0);
+	                    keypresscallback(sc_Return, 0);
 	        	}
 
 	        	// B
 	        	if (ev->type == SDL_JOYBUTTONDOWN && ev->jbutton.button == 1) {
-	                SetKey(0x1, 1);
+	                SetKey(sc_Escape, 1);
 	                if (keypresscallback)
-	                    keypresscallback(0x1, 1);
+	                    keypresscallback(sc_Escape, 1);
 	        	}
 	        	else if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 1) {
-	                SetKey(0x1, 0);
+	                SetKey(sc_Escape, 0);
 	                if (keypresscallback)
-	                    keypresscallback(0x1, 0);
+	                    keypresscallback(sc_Escape, 0);
 	        	}
 
 	        	// start
 	        	if (ev->type == SDL_JOYBUTTONDOWN && ev->jbutton.button == 6) {
-	                SetKey(sc_kpad_Enter, 1);
+	                SetKey(sc_A, 1);
 	                if (keypresscallback)
-	                    keypresscallback(sc_kpad_Enter, 1);
+	                    keypresscallback(sc_A, 1);
 	        	}
 	        	else if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 6) {
-	                SetKey(sc_kpad_Enter, 0);
+	                SetKey(sc_A, 0);
 	                if (keypresscallback)
-	                    keypresscallback(sc_kpad_Enter, 0);
-	        	}	        	
+	                    keypresscallback(sc_A, 0);
+	        	}
 	        }
 
             break;

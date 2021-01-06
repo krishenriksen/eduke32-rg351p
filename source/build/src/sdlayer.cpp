@@ -2023,9 +2023,21 @@ int32_t handleevents_sdlcommon(SDL_Event *ev) {
                 	joyb &= ~(1 << ev->jbutton.button);
             }
 
+        	// start
+        	if (ev->type == SDL_JOYBUTTONDOWN && ev->jbutton.button == 6) {
+                SetKey(sc_Return, 1);
+                if (keypresscallback)
+                    keypresscallback(sc_Return, 1);
+        	}
+        	else if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 6) {
+                SetKey(sc_Return, 0);
+                if (keypresscallback)
+                    keypresscallback(sc_Return, 0);
+        	}
+
             // rg351p - select
         	if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 7) {
-	            quitevent = 1;
+        		quitevent = 1;
 
 	            if (inmenu == 0) {
 	            	inmenu = 1;
@@ -2033,11 +2045,12 @@ int32_t handleevents_sdlcommon(SDL_Event *ev) {
 	            else {
 	            	inmenu = 0;
 	            }
+
 	            //uninitsystem();
 	            return -1;
         	}
 
-        	if (inmenu == 1) {  	
+        	if (inmenu == 1) {
 	        	// A
 	        	if (ev->type == SDL_JOYBUTTONDOWN && ev->jbutton.button == 0) {
 	                SetKey(sc_Return, 1);
@@ -2060,18 +2073,6 @@ int32_t handleevents_sdlcommon(SDL_Event *ev) {
 	                SetKey(sc_Escape, 0);
 	                if (keypresscallback)
 	                    keypresscallback(sc_Escape, 0);
-	        	}
-
-	        	// start
-	        	if (ev->type == SDL_JOYBUTTONDOWN && ev->jbutton.button == 6) {
-	                SetKey(sc_A, 1);
-	                if (keypresscallback)
-	                    keypresscallback(sc_A, 1);
-	        	}
-	        	else if (ev->type == SDL_JOYBUTTONUP && ev->jbutton.button == 6) {
-	                SetKey(sc_A, 0);
-	                if (keypresscallback)
-	                    keypresscallback(sc_A, 0);
 	        	}
 	        }
 

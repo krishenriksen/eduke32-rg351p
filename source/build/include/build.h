@@ -51,8 +51,8 @@ enum rendmode_t {
 
 # define MAXXDIM 7680
 # define MAXYDIM 3200
-# define MINXDIM 640
-# define MINYDIM 480
+# define MINXDIM 480
+# define MINYDIM 320
 
 // additional space beyond wall, in walltypes:
 # define M32_FIXME_WALLS 512

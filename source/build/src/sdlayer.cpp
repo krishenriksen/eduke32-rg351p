@@ -2023,6 +2023,8 @@ int32_t handleevents_sdlcommon(SDL_Event *ev) {
                 	joyb &= ~(1 << ev->jbutton.button);
             }
 
+            /*
+
         	// start
         	if (ev->type == SDL_JOYBUTTONDOWN && ev->jbutton.button == 6) {
                 SetKey(sc_Return, 1);
@@ -2075,6 +2077,7 @@ int32_t handleevents_sdlcommon(SDL_Event *ev) {
 	                    keypresscallback(sc_Escape, 0);
 	        	}
 	        }
+	        */
 
             break;
         } 
